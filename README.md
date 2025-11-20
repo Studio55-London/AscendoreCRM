@@ -25,7 +25,7 @@ AscendoreCRM is a comprehensive Customer Relationship Management system that int
 - **Backend**: Node.js + TypeScript + Express
 - **Database**: PostgreSQL with pgvector
 - **Caching**: Redis
-- **AI**: AWS Bedrock (Claude)
+- **AI**: Anthropic Claude API (Claude 3.5 Sonnet)
 - **Auth**: Supabase GoTrue
 - **Real-time**: Supabase Realtime
 - **Storage**: AWS S3
@@ -107,16 +107,18 @@ See [PHASE2_COMPLETE.md](./PHASE2_COMPLETE.md) for details.
 
 See [PHASE3_COMPLETE.md](./PHASE3_COMPLETE.md) for details.
 
-### Phase 4: AI & Automation (Optional)
+### Phase 4: AI & Automation ✅ COMPLETE
 
-- [ ] AI-powered lead scoring
-- [ ] Email draft generation
-- [ ] Predictive analytics
-- [ ] Custom report builder
-- [ ] CSV/Excel import/export
-- [ ] Real-time WebSocket notifications
+- [x] AI-powered lead scoring
+- [x] Email draft generation
+- [x] Deal outcome prediction
+- [x] AI insights generation
+- [x] Next best action suggestions
+- [x] CSV/Excel export functionality
+- [x] Bulk import operations
+- [ ] Real-time WebSocket notifications (future enhancement)
 
-See [Implementation Plan](https://github.com/andrewjsmart-S55/AscendoreCRM/issues/1) for full roadmap.
+See [PHASE4_COMPLETE.md](./PHASE4_COMPLETE.md) for details.
 
 ## Architecture
 

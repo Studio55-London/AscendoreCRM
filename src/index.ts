@@ -17,6 +17,9 @@ import { projectsRouter } from './api/projects';
 import { activitiesRouter } from './api/activities';
 import { searchRouter } from './api/search';
 import { analyticsRouter } from './api/analytics';
+import { aiRouter } from './api/ai';
+import { exportRouter } from './api/export';
+import { importRouter } from './api/import';
 
 // Load environment variables
 dotenv.config();
@@ -58,6 +61,9 @@ app.use(`${API_PREFIX}/projects`, projectsRouter);
 app.use(`${API_PREFIX}/activities`, activitiesRouter);
 app.use(`${API_PREFIX}/search`, searchRouter);
 app.use(`${API_PREFIX}/analytics`, analyticsRouter);
+app.use(`${API_PREFIX}/ai`, aiRouter);
+app.use(`${API_PREFIX}/export`, exportRouter);
+app.use(`${API_PREFIX}/import`, importRouter);
 
 // 404 handler
 app.use((req, res) => {
