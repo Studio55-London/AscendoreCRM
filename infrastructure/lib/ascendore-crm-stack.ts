@@ -37,9 +37,10 @@ export class AscendoreCRMStack extends cdk.Stack {
     const fullDomain = `${subDomain}.${domainName}`;
 
     // Import existing Overlord VPC by name/tags
+    const overlordStackName = environment === 'prod' ? 'OverlordProdStack' : 'OverlordDevStack';
     const vpc = ec2.Vpc.fromLookup(this, 'OverlordVPC', {
       tags: {
-        'aws:cloudformation:stack-name': `OverlordProd-${environment}`,
+        'aws:cloudformation:stack-name': overlordStackName,
       },
     });
 
@@ -132,10 +133,14 @@ export class AscendoreCRMStack extends cdk.Stack {
       })
     );
 
-    // Get database and Redis endpoints from SSM or use environment variables
-    // In production, these should be imported from Overlord's stack outputs
-    const dbHost = cdk.Fn.importValue(`Overlord-${environment}-DBEndpoint`);
-    const redisHost = cdk.Fn.importValue(`Overlord-${environment}-RedisEndpoint`);
+    // Get database and Redis endpoints from Overlord stack outputs
+    // These can be passed via context or retrieved from stack outputs
+    const dbHost =
+      this.node.tryGetContext('dbHost') ||
+      'overlordprodstack-overlorddb2e4d21b1-u4k5jqmkorpg.c7qieucq8pn1.rds.amazonaws.com';
+    const redisHost =
+      this.node.tryGetContext('redisHost') ||
+      'ove-re-fqzo0qnagpdk.v6xnd7.0001.eun1.cache.amazonaws.com';
 
     // Fargate Service with HTTPS
     const fargateService = new ecs_patterns.ApplicationLoadBalancedFargateService(
@@ -210,35 +215,13 @@ export class AscendoreCRMStack extends cdk.Stack {
     });
 
     // Security group rules to allow access to RDS and Redis
-    // Import Overlord's database security group
-    const dbSecurityGroup = ec2.SecurityGroup.fromLookupByName(
-      this,
-      'DBSecurityGroup',
-      'OverlordProd-prod-DBSecurityGroup',
-      vpc
-    );
-
-    // Allow ECS service to connect to database
-    dbSecurityGroup.addIngressRule(
-      fargateService.service.connections.securityGroups[0],
-      ec2.Port.tcp(5432),
-      'Allow AscendoreCRM ECS to RDS'
-    );
-
-    // Import Overlord's Redis security group
-    const redisSecurityGroup = ec2.SecurityGroup.fromLookupByName(
-      this,
-      'RedisSecurityGroup',
-      'OverlordProd-prod-RedisSecurityGroup',
-      vpc
-    );
-
-    // Allow ECS service to connect to Redis
-    redisSecurityGroup.addIngressRule(
-      fargateService.service.connections.securityGroups[0],
-      ec2.Port.tcp(6379),
-      'Allow AscendoreCRM ECS to Redis'
-    );
+    // Note: After deployment, manually add inbound rules to Overlord's DB and Redis security groups
+    // to allow traffic from the AscendoreCRM ECS service security group
+    //
+    // Manual steps required:
+    // 1. Get the AscendoreCRM service security group ID from stack outputs
+    // 2. Add inbound rule to Overlord DB security group: PostgreSQL (5432) from AscendoreCRM SG
+    // 3. Add inbound rule to Overlord Redis security group: Redis (6379) from AscendoreCRM SG
 
     // Outputs
     new cdk.CfnOutput(this, 'Environment', {
@@ -265,6 +248,11 @@ export class AscendoreCRMStack extends cdk.Stack {
     new cdk.CfnOutput(this, 'ServiceName', {
       value: fargateService.service.serviceName,
       description: 'ECS Service Name',
+    });
+
+    new cdk.CfnOutput(this, 'ServiceSecurityGroupId', {
+      value: fargateService.service.connections.securityGroups[0].securityGroupId,
+      description: 'ECS Service Security Group ID (add this to Overlord DB and Redis SGs)',
     });
 
     // Export values for cross-stack references
