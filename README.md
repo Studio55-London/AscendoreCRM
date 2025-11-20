@@ -41,9 +41,65 @@ AscendoreCRM leverages the Overlord Platform located at `C:\Users\AndrewSmart\Cl
 - Real-time subscriptions
 - Billing and payments (Stripe)
 
-## Getting Started
+## Quick Start
 
-Coming soon...
+### Installation
+
+```bash
+# Clone the repository
+git clone https://github.com/andrewjsmart-S55/AscendoreCRM.git
+cd AscendoreCRM
+
+# Install dependencies
+npm install
+
+# Configure environment
+cp .env.example .env
+# Edit .env with your configuration
+
+# Run database migration
+psql -U postgres -d overlord -f migrations/001_crm_foundation.sql
+```
+
+### Development
+
+```bash
+npm run dev
+```
+
+See [SETUP.md](./SETUP.md) for detailed setup instructions.
+
+## Project Status
+
+### Phase 1: Foundation ✅ COMPLETE
+
+- [x] Database schema and migrations
+- [x] TypeScript type definitions
+- [x] Zod validation schemas
+- [x] Project configuration
+- [x] Documentation
+
+See [PHASE1_COMPLETE.md](./PHASE1_COMPLETE.md) for details.
+
+### Phase 2: API Development (Next)
+
+- [ ] Express server setup
+- [ ] Companies API endpoints
+- [ ] Contacts API endpoints
+- [ ] Deals API endpoints
+- [ ] Tasks API endpoints
+
+See [Implementation Plan](https://github.com/andrewjsmart-S55/AscendoreCRM/issues/1) for full roadmap.
+
+## Architecture
+
+AscendoreCRM runs on the same PostgreSQL database as Overlord Platform to leverage:
+- Multi-tenancy infrastructure
+- Authentication and user management
+- Row-level security policies
+- Organization membership
+
+API endpoints are prefixed with `/api/v1/a-crm/` to avoid conflicts.
 
 ## License
 
