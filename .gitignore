@@ -36,3 +36,12 @@ coverage/
 # Temporary files
 tmp/
 temp/
+
+# CDK
+infrastructure/cdk.out/
+infrastructure/**/*.js
+infrastructure/**/*.d.ts
+!infrastructure/cdk.json
+
+# Claude Code
+.claude/settings.local.json

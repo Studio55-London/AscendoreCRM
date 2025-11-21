@@ -1,0 +1,68 @@
+{
+  "hosted-zone:account=252321108661:domainName=theoverlord.ai:region=eu-north-1": {
+    "Id": "/hostedzone/Z0472307HE5QR4IN1136",
+    "Name": "theoverlord.ai."
+  },
+  "vpc-provider:account=252321108661:filter.tag:aws:cloudformation:stack-name=OverlordProdStack:region=eu-north-1:returnAsymmetricSubnets=true": {
+    "vpcId": "vpc-04d8c39db59a6fadc",
+    "vpcCidrBlock": "10.0.0.0/16",
+    "ownerAccountId": "252321108661",
+    "availabilityZones": [],
+    "subnetGroups": [
+      {
+        "name": "Private",
+        "type": "Private",
+        "subnets": [
+          {
+            "subnetId": "subnet-0faad4848ba711cce",
+            "cidr": "10.0.2.0/24",
+            "availabilityZone": "eu-north-1a",
+            "routeTableId": "rtb-0f23fc0dbb963f244"
+          },
+          {
+            "subnetId": "subnet-07036ba5deb482a17",
+            "cidr": "10.0.3.0/24",
+            "availabilityZone": "eu-north-1b",
+            "routeTableId": "rtb-09304096dc51db338"
+          }
+        ]
+      },
+      {
+        "name": "Isolated",
+        "type": "Isolated",
+        "subnets": [
+          {
+            "subnetId": "subnet-0d4b6a9e4bc12466e",
+            "cidr": "10.0.4.0/28",
+            "availabilityZone": "eu-north-1a",
+            "routeTableId": "rtb-09d9ee0f3a942f22b"
+          },
+          {
+            "subnetId": "subnet-0d6b506814fda6c7e",
+            "cidr": "10.0.4.16/28",
+            "availabilityZone": "eu-north-1b",
+            "routeTableId": "rtb-02b6829a66fc8a81f"
+          }
+        ]
+      },
+      {
+        "name": "Public",
+        "type": "Public",
+        "subnets": [
+          {
+            "subnetId": "subnet-0abeb5914755569c1",
+            "cidr": "10.0.0.0/24",
+            "availabilityZone": "eu-north-1a",
+            "routeTableId": "rtb-07d34d83f1bffafd4"
+          },
+          {
+            "subnetId": "subnet-003ea18b4d4f46164",
+            "cidr": "10.0.1.0/24",
+            "availabilityZone": "eu-north-1b",
+            "routeTableId": "rtb-00a90a61499732cb0"
+          }
+        ]
+      }
+    ]
+  }
+}
