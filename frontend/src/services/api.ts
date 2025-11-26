@@ -73,12 +73,19 @@ class ApiService {
   async getContacts(params?: {
     page?: number
     limit?: number
+    offset?: number
     search?: string
   }): Promise<PaginatedResponse<Contact>> {
-    const { data } = await this.api.get<PaginatedResponse<Contact>>('/api/v1/a-crm/contacts', {
+    const { data } = await this.api.get<{ success: boolean; data: Contact[]; pagination: { page: number; limit: number; total: number; total_pages: number } }>('/api/v1/a-crm/contacts', {
       params,
     })
-    return data
+    return {
+      data: data.data,
+      total: data.pagination.total,
+      page: data.pagination.page,
+      limit: data.pagination.limit,
+      totalPages: data.pagination.total_pages,
+    }
   }
 
   async getContact(id: string): Promise<Contact> {
@@ -104,12 +111,19 @@ class ApiService {
   async getCompanies(params?: {
     page?: number
     limit?: number
+    offset?: number
     search?: string
   }): Promise<PaginatedResponse<Company>> {
-    const { data } = await this.api.get<PaginatedResponse<Company>>('/api/v1/a-crm/companies', {
+    const { data } = await this.api.get<{ success: boolean; data: Company[]; pagination: { page: number; limit: number; total: number; total_pages: number } }>('/api/v1/a-crm/companies', {
       params,
     })
-    return data
+    return {
+      data: data.data,
+      total: data.pagination.total,
+      page: data.pagination.page,
+      limit: data.pagination.limit,
+      totalPages: data.pagination.total_pages,
+    }
   }
 
   async getCompany(id: string): Promise<Company> {
@@ -135,10 +149,36 @@ class ApiService {
   async getDeals(params?: {
     page?: number
     limit?: number
+    offset?: number
     stage?: string
   }): Promise<PaginatedResponse<Deal>> {
-    const { data } = await this.api.get<PaginatedResponse<Deal>>('/api/v1/a-crm/deals', { params })
-    return data
+    const { data } = await this.api.get<{ success: boolean; data: any[]; pagination: { page: number; limit: number; total: number; total_pages: number } }>('/api/v1/a-crm/deals', { params })
+    // Transform backend field names to frontend field names
+    const transformedDeals = data.data.map(deal => ({
+      id: deal.id,
+      title: deal.name,  // Backend uses 'name', frontend uses 'title'
+      value: deal.amount || 0,  // Backend uses 'amount', frontend uses 'value'
+      currency: deal.currency || 'USD',
+      stage: deal.stage,
+      probability: deal.probability || 0,
+      expectedCloseDate: deal.expected_close_date,
+      contactId: deal.primary_contact_id,
+      companyId: deal.company_id,
+      ownerId: deal.owner_id,
+      notes: deal.description,
+      tags: deal.tags || [],
+      createdAt: deal.created_at,
+      updatedAt: deal.updated_at,
+      contact: deal.contact_name ? { name: deal.contact_name } : undefined,
+      company: deal.company_name ? { name: deal.company_name } : undefined,
+    }))
+    return {
+      data: transformedDeals,
+      total: data.pagination.total,
+      page: data.pagination.page,
+      limit: data.pagination.limit,
+      totalPages: data.pagination.total_pages,
+    }
   }
 
   async getDeal(id: string): Promise<Deal> {
@@ -164,12 +204,35 @@ class ApiService {
   async getActivities(params?: {
     page?: number
     limit?: number
+    offset?: number
     type?: string
   }): Promise<PaginatedResponse<Activity>> {
-    const { data } = await this.api.get<PaginatedResponse<Activity>>('/api/v1/a-crm/activities', {
+    const { data } = await this.api.get<{ success: boolean; data: any[]; pagination: { page: number; limit: number; total: number; total_pages: number } }>('/api/v1/a-crm/activities', {
       params,
     })
-    return data
+    // Transform backend field names to frontend field names
+    const transformedActivities = data.data.map(activity => ({
+      id: activity.id,
+      type: activity.activity_type || 'task',
+      title: activity.description || 'Activity',
+      description: activity.metadata?.notes || '',
+      dueDate: activity.due_date,
+      completed: activity.completed || false,
+      contactId: activity.entity_type === 'contact' ? activity.entity_id : undefined,
+      companyId: activity.company_id,
+      dealId: activity.entity_type === 'deal' ? activity.entity_id : undefined,
+      tags: [],
+      ownerId: activity.user_id,
+      createdAt: activity.created_at,
+      updatedAt: activity.updated_at || activity.created_at,
+    }))
+    return {
+      data: transformedActivities,
+      total: data.pagination.total,
+      page: data.pagination.page,
+      limit: data.pagination.limit,
+      totalPages: data.pagination.total_pages,
+    }
   }
 
   async createActivity(activity: Partial<Activity>): Promise<Activity> {
@@ -190,12 +253,19 @@ class ApiService {
   async getCampaigns(params?: {
     page?: number
     limit?: number
+    offset?: number
     status?: string
   }): Promise<PaginatedResponse<Campaign>> {
-    const { data } = await this.api.get<PaginatedResponse<Campaign>>('/api/v1/a-crm/campaigns', {
+    const { data } = await this.api.get<{ success: boolean; data: Campaign[]; pagination: { page: number; limit: number; total: number; total_pages: number } }>('/api/v1/a-crm/campaigns', {
       params,
     })
-    return data
+    return {
+      data: data.data,
+      total: data.pagination.total,
+      page: data.pagination.page,
+      limit: data.pagination.limit,
+      totalPages: data.pagination.total_pages,
+    }
   }
 
   async getCampaign(id: string): Promise<CampaignWithDetails> {

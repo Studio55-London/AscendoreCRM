@@ -27,10 +27,21 @@ const GOAL_TYPES: { value: Campaign['goalType']; label: string }[] = [
   { value: 'activities', label: 'Activities' },
 ]
 
+const CAMPAIGN_TYPES = [
+  { value: 'email', label: 'Email' },
+  { value: 'social', label: 'Social Media' },
+  { value: 'webinar', label: 'Webinar' },
+  { value: 'event', label: 'Event' },
+  { value: 'content', label: 'Content Marketing' },
+  { value: 'advertising', label: 'Advertising' },
+  { value: 'other', label: 'Other' },
+]
+
 export function CampaignDialog({ open, onOpenChange, campaign, onSave }: CampaignDialogProps) {
   const [formData, setFormData] = useState({
     name: '',
     description: '',
+    campaignType: 'email',
     status: 'draft' as Campaign['status'],
     startDate: '',
     endDate: '',
@@ -45,6 +56,7 @@ export function CampaignDialog({ open, onOpenChange, campaign, onSave }: Campaig
       setFormData({
         name: campaign.name || '',
         description: campaign.description || '',
+        campaignType: (campaign as any).campaign_type || 'email',
         status: campaign.status || 'draft',
         startDate: campaign.startDate ? campaign.startDate.split('T')[0] : '',
         endDate: campaign.endDate ? campaign.endDate.split('T')[0] : '',
@@ -56,6 +68,7 @@ export function CampaignDialog({ open, onOpenChange, campaign, onSave }: Campaig
       setFormData({
         name: '',
         description: '',
+        campaignType: 'email',
         status: 'draft',
         startDate: '',
         endDate: '',
@@ -80,7 +93,9 @@ export function CampaignDialog({ open, onOpenChange, campaign, onSave }: Campaig
         goalType: formData.goalType || undefined,
         goalValue: formData.goalValue ? parseFloat(formData.goalValue) : undefined,
         notes: formData.notes || undefined,
-      })
+        // Backend requires campaign_type
+        campaign_type: formData.campaignType,
+      } as any)
       onOpenChange(false)
     } catch (error) {
       console.error('Failed to save campaign:', error)
@@ -126,7 +141,23 @@ export function CampaignDialog({ open, onOpenChange, campaign, onSave }: Campaig
             />
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-3 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="campaignType">Campaign Type *</Label>
+              <select
+                id="campaignType"
+                value={formData.campaignType}
+                onChange={(e) => handleChange('campaignType', e.target.value)}
+                className="w-full px-3 py-2 rounded-md border border-input bg-background"
+                required
+              >
+                {CAMPAIGN_TYPES.map((type) => (
+                  <option key={type.value} value={type.value}>
+                    {type.label}
+                  </option>
+                ))}
+              </select>
+            </div>
             <div className="space-y-2">
               <Label htmlFor="status">Status *</Label>
               <select

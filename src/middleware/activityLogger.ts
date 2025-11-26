@@ -23,13 +23,22 @@ export async function logActivity(
     const pool = getPool();
 
     await pool.query(
-      `SELECT log_crm_activity($1, $2, $3, $4, $5, $6, $7)`,
+      `INSERT INTO public.crm_activities (
+        company_id,
+        activity_type,
+        entity_type,
+        entity_id,
+        description,
+        user_id,
+        metadata,
+        created_at
+      ) VALUES ($1, $2, $3, $4, $5, $6, $7, NOW())`,
       [
         organizationId,
         context.activityType,
         context.entityType,
-        context.entityId || null,
-        context.description || null,
+        context.entityId || '00000000-0000-0000-0000-000000000000',
+        context.description || `${context.activityType} ${context.entityType}`,
         userId,
         JSON.stringify(context.metadata || {}),
       ]

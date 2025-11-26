@@ -1,35 +1,60 @@
 import { useMemo } from 'react'
-import { Phone, Mail, Calendar, CheckSquare, FileText, Clock } from 'lucide-react'
+import { Eye, Plus, Edit, Trash2, User, Building2, DollarSign, FileText, Clock } from 'lucide-react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import type { Activity } from '@/types'
 import { formatDistanceToNow } from 'date-fns'
 
+// API returns activities with this structure
+interface ApiActivity {
+  id: string
+  company_id: string
+  activity_type: string  // "viewed", "created", "updated", "deleted"
+  entity_type: string    // "contact", "deal", "company", etc.
+  entity_id: string
+  description: string
+  user_id: string
+  metadata: Record<string, any>
+  created_at: string
+  user_email?: string
+  user_name?: string
+}
+
 interface ActivityTimelineProps {
-  activities: Activity[]
+  activities: ApiActivity[]
   loading?: boolean
 }
 
-const activityIcons = {
-  call: Phone,
-  email: Mail,
-  meeting: Calendar,
-  task: CheckSquare,
+// Map activity types to icons
+const activityTypeIcons: Record<string, typeof Eye> = {
+  viewed: Eye,
+  created: Plus,
+  updated: Edit,
+  deleted: Trash2,
+}
+
+// Map entity types to icons
+const entityTypeIcons: Record<string, typeof User> = {
+  contact: User,
+  company: Building2,
+  deal: DollarSign,
   note: FileText,
 }
 
-const activityColors = {
-  call: 'text-blue-500',
-  email: 'text-purple-500',
-  meeting: 'text-green-500',
-  task: 'text-orange-500',
-  note: 'text-gray-500',
+// Map activity types to colors
+const activityColors: Record<string, string> = {
+  viewed: 'text-blue-500',
+  created: 'text-green-500',
+  updated: 'text-orange-500',
+  deleted: 'text-red-500',
 }
 
 export function ActivityTimeline({ activities, loading }: ActivityTimelineProps) {
   const sortedActivities = useMemo(() => {
-    return [...activities].sort((a, b) =>
-      new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-    )
+    if (!activities || !Array.isArray(activities)) return []
+    return [...activities].sort((a, b) => {
+      const dateA = a.created_at ? new Date(a.created_at).getTime() : 0
+      const dateB = b.created_at ? new Date(b.created_at).getTime() : 0
+      return dateB - dateA
+    })
   }, [activities])
 
   if (loading) {
@@ -76,9 +101,23 @@ export function ActivityTimeline({ activities, loading }: ActivityTimelineProps)
           {/* Timeline line */}
           <div className="absolute left-4 top-0 bottom-0 w-0.5 bg-border" />
 
-          {sortedActivities.map((activity, index) => {
-            const Icon = activityIcons[activity.type]
-            const colorClass = activityColors[activity.type]
+          {sortedActivities.map((activity) => {
+            // Get the appropriate icon - fallback to Eye if not found
+            const Icon = activityTypeIcons[activity.activity_type] || entityTypeIcons[activity.entity_type] || Eye
+            const colorClass = activityColors[activity.activity_type] || 'text-gray-500'
+
+            // Safely format the date
+            let timeAgo = 'Unknown time'
+            try {
+              if (activity.created_at) {
+                const date = new Date(activity.created_at)
+                if (!isNaN(date.getTime())) {
+                  timeAgo = formatDistanceToNow(date, { addSuffix: true })
+                }
+              }
+            } catch {
+              timeAgo = 'Unknown time'
+            }
 
             return (
               <div key={activity.id} className="relative pl-10 pb-4">
@@ -91,17 +130,19 @@ export function ActivityTimeline({ activities, loading }: ActivityTimelineProps)
                 <div className="bg-muted/50 rounded-lg p-4">
                   <div className="flex items-start justify-between gap-2 mb-2">
                     <div className="flex-1">
-                      <h4 className="font-medium">{activity.title}</h4>
+                      <h4 className="font-medium capitalize">
+                        {activity.activity_type} {activity.entity_type}
+                      </h4>
                       <div className="flex items-center gap-2 text-sm text-muted-foreground mt-1">
-                        <span className="capitalize">{activity.type}</span>
+                        <span className="capitalize">{activity.entity_type}</span>
                         <span>•</span>
-                        <span>{formatDistanceToNow(new Date(activity.createdAt), { addSuffix: true })}</span>
+                        <span>{timeAgo}</span>
                       </div>
                     </div>
-                    {activity.completed && (
-                      <div className="flex items-center gap-1 text-xs text-green-600 bg-green-50 px-2 py-1 rounded">
-                        <CheckSquare className="h-3 w-3" />
-                        Completed
+                    {activity.user_name && (
+                      <div className="flex items-center gap-1 text-xs text-muted-foreground bg-muted px-2 py-1 rounded">
+                        <User className="h-3 w-3" />
+                        {activity.user_name}
                       </div>
                     )}
                   </div>
@@ -110,13 +151,6 @@ export function ActivityTimeline({ activities, loading }: ActivityTimelineProps)
                     <p className="text-sm text-muted-foreground mt-2">
                       {activity.description}
                     </p>
-                  )}
-
-                  {activity.dueDate && !activity.completed && (
-                    <div className="flex items-center gap-2 text-xs text-muted-foreground mt-2">
-                      <Clock className="h-3 w-3" />
-                      Due {formatDistanceToNow(new Date(activity.dueDate), { addSuffix: true })}
-                    </div>
                   )}
                 </div>
               </div>

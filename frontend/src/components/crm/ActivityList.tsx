@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { CheckCircle2, Circle, Calendar, MessageSquare, Phone, Mail, FileText, Edit2, Trash2, MoreVertical } from 'lucide-react'
+import { CheckCircle2, Circle, Calendar, MessageSquare, Phone, Mail, FileText, Edit2, Trash2, MoreVertical, Eye, Plus, Pencil, Activity as ActivityIcon } from 'lucide-react'
 import { formatDateTime, formatRelativeTime } from '@/utils/format'
 import type { Activity } from '@/types'
 import { cn } from '@/utils/cn'
@@ -14,20 +14,30 @@ interface ActivityListProps {
   onDelete?: (activity: Activity) => void
 }
 
-const ACTIVITY_ICONS = {
+const ACTIVITY_ICONS: Record<string, typeof Phone> = {
   call: Phone,
   email: Mail,
   meeting: Calendar,
   task: CheckCircle2,
   note: FileText,
+  // Activity log types from backend
+  viewed: Eye,
+  created: Plus,
+  updated: Pencil,
+  deleted: Trash2,
 }
 
-const ACTIVITY_COLORS = {
+const ACTIVITY_COLORS: Record<string, string> = {
   call: 'text-blue-500',
   email: 'text-purple-500',
   meeting: 'text-green-500',
   task: 'text-orange-500',
   note: 'text-gray-500',
+  // Activity log types from backend
+  viewed: 'text-blue-400',
+  created: 'text-green-500',
+  updated: 'text-yellow-500',
+  deleted: 'text-red-500',
 }
 
 export function ActivityList({ activities, loading, onEdit, onDelete }: ActivityListProps) {
@@ -81,8 +91,8 @@ export function ActivityList({ activities, loading, onEdit, onDelete }: Activity
           <div className="absolute left-5 top-0 bottom-0 w-px bg-border" />
 
           {activities.map((activity, index) => {
-            const Icon = ACTIVITY_ICONS[activity.type]
-            const color = ACTIVITY_COLORS[activity.type]
+            const Icon = ACTIVITY_ICONS[activity.type] || ActivityIcon
+            const color = ACTIVITY_COLORS[activity.type] || 'text-gray-500'
 
             return (
               <div key={activity.id} className="relative flex gap-4">
